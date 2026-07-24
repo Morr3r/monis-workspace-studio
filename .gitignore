@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/output
 
 # next.js
 /.next/
@@ -23,6 +24,9 @@
 # misc
 .DS_Store
 *.pem
+/public/products/*
+!/public/products/bali-room.webp
+!/public/products/*-cutout-v3.png
 
 # debug
 npm-debug.log*

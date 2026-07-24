@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# monis.studio — Workspace Designer
 
-## Getting Started
+A visual office-rental configurator for digital nomads and startup teams in Bali. Build a complete workspace by switching desks and chairs, adding accessories directly into the room, and reviewing a live rental summary before checkout.
 
-First, run the development server:
+**[Open the live experience](https://desent-test-xi.vercel.app)** · **[View the repository](https://github.com/Morr3r/monis-workspace-studio)**
+
+![Workspace configurator](docs/design/workspace-configurator-implementation.png)
+
+## Approach
+
+The experience is designed around one idea: choosing rental furniture should feel like creating a space, not filling in a form. A bright Bali room acts as the canvas, each product is composited into that scene as the selection changes, and the price and setup summary remain visible without interrupting the design flow. The interface uses a restrained iOS-inspired liquid-glass system, warm natural imagery, editorial typography, and a single lime action color to keep the result premium but easy to scan.
+
+The checkout is intentionally lightweight. Users can compare monthly and weekly plans, adjust accessory quantities, choose an area and delivery date, then complete the prototype flow with clear loading and success feedback.
+
+## Highlights
+
+- Two selectable desks and two selectable chairs
+- Live layered workspace preview
+- Add, remove, and quantity-control monitors, lighting, and plants
+- Monthly/weekly pricing and accurate piece totals
+- Responsive desktop, tablet, and mobile layouts
+- Accessible tabs, focus states, live announcements, Escape-to-close, and reduced-motion support
+- Itemized checkout with delivery details and confirmation state
+
+## Tech choices
+
+- **Next.js 16 App Router** and **React 19** for the application shell and interactive client state
+- **Tailwind CSS 4** plus a small custom CSS layer for responsive composition, glass materials, and motion
+- **TypeScript** for the product model and UI state
+- **Lucide React** for consistent interface iconography
+- **Vercel** for production deployment
+
+No external state library is needed for this MVP; the configurator state is local, predictable, and small enough to keep close to the UI.
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Production checks:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+npm audit --omit=dev
+```
 
-## Learn More
+## Project structure
 
-To learn more about Next.js, take a look at the following resources:
+```text
+src/
+  app/                         App shell, metadata, and global visual system
+  components/workspace-studio Product data, catalog, preview, checkout, state
+public/products/               Optimized room and transparent product assets
+docs/design/                   Concept, implementation captures, fidelity notes
+design-system/                 Persisted UI/UX direction and design tokens
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Asset notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Desk, ergonomic chair, monitor, and lamp references are based on product photography from [monis.rent](https://monis.rent/). The empty Bali room, soft task chair, plant, and visual direction concepts were generated specifically for this prototype, then optimized and isolated for real-time compositing.
 
-## Deploy on Vercel
+## With more time
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+I would connect the final CTA to Monis inventory and availability, persist shareable configurations in a database, add drag-to-position controls with collision-aware placement, and support multiple room templates. I would also add automated visual-regression tests across breakpoints and replace prototype delivery pricing with live service-area rules.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Design documentation
+
+- [Visual fidelity ledger](docs/design/fidelity-ledger.md)
+- [Configurator concept](docs/design/workspace-configurator-concept.png)
+- [Checkout concept](docs/design/workspace-checkout-concept.png)
