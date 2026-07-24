@@ -4,7 +4,7 @@ A visual office-rental configurator for digital nomads and startup teams in Bali
 
 **[Open the live experience](https://desent-test-xi.vercel.app)** · **[View the repository](https://github.com/Morr3r/monis-workspace-studio)**
 
-![Workspace configurator](docs/design/workspace-configurator-implementation.png)
+![Workspace configurator](docs/design/workspace-configurator-implementation1.png)
 
 ## Approach
 
