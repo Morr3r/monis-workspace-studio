@@ -40,60 +40,49 @@ function ProductCard({
 
   return (
     <article
-      className={`product-card group relative overflow-hidden rounded-[22px] border p-3.5 transition-all duration-300 ${
+      className={`product-card group relative overflow-hidden border transition-all duration-300 ${
         selected
-          ? "border-[#c6d300] bg-white/72 shadow-[0_18px_50px_rgba(32,35,0,0.12)]"
-          : "border-white/65 bg-white/42 hover:border-white hover:bg-white/62"
+          ? "is-selected"
+          : ""
       }`}
     >
       <button
         type="button"
         onClick={onSelect}
         aria-pressed={selected}
-        className="absolute inset-0 z-0 cursor-pointer rounded-[22px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1c1c1a] focus-visible:ring-offset-2"
+        className="absolute inset-0 z-0 cursor-pointer rounded-[18px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1c1c1a] focus-visible:ring-offset-2"
         aria-label={`${selected ? "Selected" : "Select"} ${product.name}`}
       />
 
-      <div className="pointer-events-none relative z-10">
-        <div className="relative h-28 overflow-hidden rounded-2xl bg-white/58 sm:h-32">
+      <div className="product-card-layout pointer-events-none relative z-10">
+        <div className="product-media relative overflow-hidden">
           <Image
             src={product.image}
             alt=""
             fill
             sizes="(max-width: 767px) 45vw, 270px"
-            className="object-contain p-1 mix-blend-multiply transition-transform duration-300 group-hover:scale-[1.03]"
+            className="object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-[1.03]"
           />
-          {selected ? (
-            <span className="absolute right-2.5 top-2.5 grid size-7 place-items-center rounded-full bg-[#dbea00] text-[#151600] shadow-[0_5px_14px_rgba(135,145,0,0.25)]">
-              <Check aria-hidden="true" size={15} strokeWidth={2.6} />
-            </span>
-          ) : null}
         </div>
 
-        <div className="mt-3 flex min-h-20 flex-col">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-[15px] font-semibold leading-5 tracking-[-0.02em] text-[#181816]">
-                {product.name}
-              </h3>
-              <p className="mt-0.5 text-xs font-medium text-[#555550]">
-                {product.accent}
-              </p>
-            </div>
-            <span className="shrink-0 text-sm font-semibold tabular-nums text-[#181816]">
-              ${product.monthlyPrice}
-              <span className="ml-0.5 text-[10px] font-medium text-[#686862]">/mo</span>
-            </span>
-          </div>
-
-          <p className="mt-2 line-clamp-2 text-xs leading-[1.45] text-[#5b5b55]">
+        <div className="product-card-copy">
+          <h3>{product.name}</h3>
+          <p>
             {product.description}
           </p>
+          <span className={`product-select-pill ${selected ? "is-selected" : ""}`}>
+            {selected ? "Selected" : "Select"}
+          </span>
         </div>
+        {selected ? (
+          <span className="product-selected-check">
+            <Check aria-hidden="true" size={15} strokeWidth={2.6} />
+          </span>
+        ) : null}
       </div>
 
       {isAccessory && selected && onQuantityChange ? (
-        <div className="relative z-20 mt-3 flex items-center justify-between border-t border-black/8 pt-3">
+        <div className="product-card-quantity relative z-20">
           <span className="text-xs font-semibold text-[#42423d]">Quantity</span>
           <div
             className="flex items-center rounded-full border border-black/10 bg-white/60 p-0.5"
@@ -139,11 +128,11 @@ export function CatalogPanel({
 
   return (
     <aside
-      className="liquid-glass catalog-panel relative z-20 w-full rounded-[28px] p-2.5 lg:w-[308px]"
+      className="liquid-glass catalog-panel relative z-20 w-full"
       aria-label="Workspace catalog"
     >
       <div
-        className="grid grid-cols-3 gap-1 rounded-[20px] border border-white/70 bg-white/26 p-1"
+        className="catalog-tabs"
         role="tablist"
         aria-label="Product categories"
       >
@@ -154,10 +143,10 @@ export function CatalogPanel({
             role="tab"
             aria-selected={activeCategory === category}
             onClick={() => onCategoryChange(category)}
-            className={`min-h-11 cursor-pointer rounded-2xl px-3 text-[13px] font-semibold tracking-[-0.01em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black ${
+            className={`cursor-pointer transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black ${
               activeCategory === category
-                ? "bg-white/78 text-[#171715] shadow-[0_8px_22px_rgba(30,30,26,0.09)]"
-                : "text-[#54544f] hover:bg-white/40 hover:text-[#171715]"
+                ? "is-active"
+                : ""
             }`}
           >
             {categoryLabels[category]}
@@ -166,9 +155,9 @@ export function CatalogPanel({
       </div>
 
       <div
-        className={`mt-2 grid gap-2 ${
+        className={`catalog-products ${
           activeCategory === "extras"
-            ? "max-h-[470px] overflow-y-auto overscroll-contain pr-0.5"
+            ? "is-extras overflow-y-auto overscroll-contain pr-0.5"
             : ""
         }`}
         role="tabpanel"

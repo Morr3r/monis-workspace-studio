@@ -46,6 +46,8 @@ export function CheckoutSheet({
   onExtraQuantityChange,
 }: CheckoutSheetProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+  const [area, setArea] = useState("Canggu");
+  const [deliveryDate, setDeliveryDate] = useState("2026-08-03");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleClose = useCallback(() => {
@@ -128,7 +130,7 @@ export function CheckoutSheet({
                     Your setup
                   </p>
                   <p className="mt-1 text-sm font-semibold text-[#22221f]">
-                    {pieceCount} pieces · Canggu
+                    {pieceCount} pieces · {area}
                   </p>
                 </div>
                 <p className="text-xl font-semibold tabular-nums tracking-[-0.04em]">
@@ -293,7 +295,8 @@ export function CheckoutSheet({
                       className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#66665f]"
                     />
                     <select
-                      defaultValue="Canggu"
+                      value={area}
+                      onChange={(event) => setArea(event.target.value)}
                       className="min-h-12 w-full cursor-pointer appearance-none rounded-[14px] border border-black/12 bg-white/48 pl-9 pr-9 text-sm font-semibold text-[#272724] outline-none transition-colors focus:border-black/35 focus:ring-2 focus:ring-black/20"
                     >
                       <option>Canggu</option>
@@ -321,7 +324,8 @@ export function CheckoutSheet({
                     />
                     <input
                       type="date"
-                      defaultValue="2026-08-03"
+                      value={deliveryDate}
+                      onChange={(event) => setDeliveryDate(event.target.value)}
                       min="2026-07-25"
                       className="min-h-12 w-full rounded-[14px] border border-black/12 bg-white/48 pl-9 pr-3 text-sm font-semibold text-[#272724] outline-none transition-colors focus:border-black/35 focus:ring-2 focus:ring-black/20"
                     />

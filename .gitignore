@@ -27,6 +27,13 @@
 /public/products/*
 !/public/products/bali-room.webp
 !/public/products/*-cutout-v3.png
+!/public/products/bali-room-v3.webp
+!/public/products/*-v2-trim.png
+!/public/products/monstera-cutout-v3-trim.png
+!/public/products/bosch-coffee-maker.jpg
+!/public/products/bosch-coffee-maker-cutout.png
+/.playwright-cli
+/scratch-assets
 
 # debug
 npm-debug.log*

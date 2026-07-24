@@ -1,7 +1,7 @@
 export type Category = "desk" | "chair" | "extras";
 export type DeskId = "lift-desk" | "studio-desk";
 export type ChairId = "ergo-pro" | "soft-task";
-export type ExtraId = "display" | "lamp" | "plant";
+export type ExtraId = "display" | "lamp" | "plant" | "coffee-maker";
 export type ProductId = DeskId | ChairId | ExtraId;
 export type Plan = "monthly" | "weekly";
 
@@ -11,10 +11,12 @@ export type Product = {
   shortName: string;
   description: string;
   image: string;
+  stageImage?: string;
   monthlyPrice: number;
   weeklyPrice: number;
   category: Category;
   accent: string;
+  sourceUrl?: string;
 };
 
 export const products: Record<ProductId, Product> = {
@@ -22,8 +24,8 @@ export const products: Record<ProductId, Product> = {
     id: "lift-desk",
     name: "Lift Desk",
     shortName: "Electric sit–stand",
-    description: "Smooth electric adjustment for an easy sit-to-stand rhythm.",
-    image: "/products/lift-desk-cutout-v3.png",
+    description: "Sit or stand with smooth electric adjustment.",
+    image: "/products/lift-desk-oak-v2-trim.png",
     monthlyPrice: 25,
     weeklyPrice: 9,
     category: "desk",
@@ -33,8 +35,8 @@ export const products: Record<ProductId, Product> = {
     id: "studio-desk",
     name: "Studio Desk",
     shortName: "Mechanical standing",
-    description: "A warm, minimal surface made for deep work and small spaces.",
-    image: "/products/studio-desk-cutout-v3.png",
+    description: "Clean, minimal, and built for focus.",
+    image: "/products/studio-desk-oak-v2-trim.png",
     monthlyPrice: 18,
     weeklyPrice: 7,
     category: "desk",
@@ -44,8 +46,8 @@ export const products: Record<ProductId, Product> = {
     id: "ergo-pro",
     name: "Ergo Pro",
     shortName: "4D ergonomic mesh",
-    description: "Breathable mesh, adjustable support, and all-day comfort.",
-    image: "/products/ergo-chair-cutout-v3.png",
+    description: "Breathable mesh and ergonomic all-day support.",
+    image: "/products/ergo-chair-v2-trim.png",
     monthlyPrice: 15,
     weeklyPrice: 6,
     category: "chair",
@@ -55,7 +57,7 @@ export const products: Record<ProductId, Product> = {
     id: "soft-task",
     name: "Soft Task Chair",
     shortName: "Upholstered swivel",
-    description: "A softer silhouette for calm, compact creative workspaces.",
+    description: "Soft curves for calm, compact creative work.",
     image: "/products/soft-task-chair-cutout-v3.png",
     monthlyPrice: 12,
     weeklyPrice: 5,
@@ -66,8 +68,9 @@ export const products: Record<ProductId, Product> = {
     id: "display",
     name: '27" 4K Display',
     shortName: "Crisp USB-C display",
-    description: "A sharp 4K canvas for focused work, editing, and calls.",
+    description: "Crisp 4K focus for work and calls.",
     image: "/products/display-cutout-v3.png",
+    stageImage: "/products/display-kit-v2-trim.png",
     monthlyPrice: 15,
     weeklyPrice: 6,
     category: "extras",
@@ -77,8 +80,8 @@ export const products: Record<ProductId, Product> = {
     id: "lamp",
     name: "Smart Desk Lamp",
     shortName: "Warm-to-cool light",
-    description: "Flicker-free task light with a clean, adjustable profile.",
-    image: "/products/desk-lamp-cutout-v3.png",
+    description: "Adjustable, flicker-free task light.",
+    image: "/products/desk-lamp-arch-v2-trim.png",
     monthlyPrice: 5,
     weeklyPrice: 2,
     category: "extras",
@@ -88,19 +91,31 @@ export const products: Record<ProductId, Product> = {
     id: "plant",
     name: "Monstera",
     shortName: "Living desk plant",
-    description: "A little Bali green to soften the setup and brighten the day.",
-    image: "/products/monstera-cutout-v3.png",
+    description: "A little Bali green for the desk.",
+    image: "/products/monstera-cutout-v3-trim.png",
     monthlyPrice: 8,
     weeklyPrice: 3,
     category: "extras",
     accent: "Live plant",
+  },
+  "coffee-maker": {
+    id: "coffee-maker",
+    name: "Bosch Coffee Maker",
+    shortName: "1.4 L filter brewer",
+    description: "Brews 10–15 cups with drip-stop and auto-off.",
+    image: "/products/bosch-coffee-maker-cutout.png",
+    monthlyPrice: 12,
+    weeklyPrice: 5,
+    category: "extras",
+    accent: "Bosch TKA2M113 · 1200 W",
+    sourceUrl: "https://www.monis.rent/products/bosch-coffee-maker",
   },
 };
 
 export const categoryProducts: Record<Category, ProductId[]> = {
   desk: ["lift-desk", "studio-desk"],
   chair: ["ergo-pro", "soft-task"],
-  extras: ["display", "lamp", "plant"],
+  extras: ["display", "lamp", "plant", "coffee-maker"],
 };
 
 export const categoryLabels: Record<Category, string> = {
@@ -113,4 +128,5 @@ export const defaultExtras: Record<ExtraId, number> = {
   display: 1,
   lamp: 1,
   plant: 1,
+  "coffee-maker": 0,
 };

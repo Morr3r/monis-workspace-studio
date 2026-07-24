@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   ArrowRight,
   Check,
@@ -24,13 +25,20 @@ import {
   type Plan,
   type ProductId,
 } from "./data";
-import { WorkspacePreview } from "./workspace-preview";
+import {
+  WorkspacePreview,
+  type TransformAssetId,
+} from "./workspace-preview";
 
-const basicExtras: Record<ExtraId, number> = {
-  display: 0,
-  lamp: 0,
-  plant: 0,
-};
+function isAssetForExtra(
+  assetId: TransformAssetId | null,
+  extraId: ExtraId,
+) {
+  if (extraId === "display") {
+    return assetId === "display-1" || assetId === "display-2";
+  }
+  return assetId === extraId;
+}
 
 export function WorkspaceConfigurator() {
   const [activeCategory, setActiveCategory] = useState<Category>("desk");
@@ -42,6 +50,9 @@ export function WorkspaceConfigurator() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [howOpen, setHowOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [activeAssetId, setActiveAssetId] =
+    useState<TransformAssetId | null>(null);
+  const [transformResetVersion, setTransformResetVersion] = useState(0);
 
   const selectedItems = useMemo<ProductId[]>(
     () => [
@@ -83,63 +94,94 @@ export function WorkspaceConfigurator() {
     const product = products[id];
     if (product.category === "desk") {
       setSelectedDesk(id as DeskId);
+      setActiveAssetId("desk");
       notify(`${product.name} selected. Preview updated.`);
       return;
     }
     if (product.category === "chair") {
       setSelectedChair(id as ChairId);
+      setActiveAssetId("chair");
       notify(`${product.name} selected. Preview updated.`);
       return;
     }
 
     const extraId = id as ExtraId;
+    const isRemoving = extras[extraId] > 0;
     setExtras((current) => ({
       ...current,
       [extraId]: current[extraId] > 0 ? 0 : 1,
     }));
+    setActiveAssetId((current) =>
+      isRemoving
+        ? isAssetForExtra(current, extraId)
+          ? null
+          : current
+        : extraId === "display"
+          ? "display-1"
+          : extraId,
+    );
     notify(
-      `${product.name} ${extras[extraId] > 0 ? "removed from" : "added to"} the workspace.`,
+      `${product.name} ${isRemoving ? "removed from" : "added to"} the workspace.`,
     );
   };
 
   const handleExtraQuantityChange = (id: ExtraId, delta: number) => {
-    setExtras((current) => {
-      const max = id === "display" ? 2 : 1;
-      const next = Math.max(0, Math.min(max, current[id] + delta));
-      return { ...current, [id]: next };
-    });
+    const max = id === "display" ? 2 : 1;
+    const next = Math.max(0, Math.min(max, extras[id] + delta));
+
+    setExtras((current) => ({ ...current, [id]: next }));
+    if (next === 0 && isAssetForExtra(activeAssetId, id)) {
+      setActiveAssetId(null);
+    } else if (delta > 0) {
+      setActiveAssetId(
+        id === "display" && next === 2 ? "display-2" : id === "display" ? "display-1" : id,
+      );
+    } else if (id === "display" && activeAssetId === "display-2") {
+      setActiveAssetId(null);
+    }
     notify(`${products[id].name} quantity updated.`);
   };
 
   const handleReset = () => {
     setSelectedDesk("lift-desk");
     setSelectedChair("ergo-pro");
-    setExtras(basicExtras);
+    setExtras(defaultExtras);
     setPlan("monthly");
     setActiveCategory("desk");
     setCheckoutOpen(false);
     setHowOpen(false);
-    notify("Workspace reset to the essentials.");
+    setActiveAssetId(null);
+    setTransformResetVersion((current) => current + 1);
+    notify("Workspace reset to the featured setup.");
   };
 
-  const steps: { id: Category; number: string; label: string; value: string }[] = [
+  const steps: {
+    id: Category;
+    number: string;
+    label: string;
+    value: string;
+    productId: ProductId;
+  }[] = [
     {
       id: "desk",
       number: "01",
       label: "Desk",
       value: products[selectedDesk].name,
+      productId: selectedDesk,
     },
     {
       id: "chair",
       number: "02",
       label: "Chair",
       value: products[selectedChair].name,
+      productId: selectedChair,
     },
     {
       id: "extras",
       number: "03",
       label: "Setup",
       value: `${pieceCount} pieces`,
+      productId: extras.display > 0 ? "display" : selectedDesk,
     },
   ];
 
@@ -152,10 +194,10 @@ export function WorkspaceConfigurator() {
         Skip to workspace designer
       </a>
 
-      <header className="studio-header relative z-50 flex h-[74px] items-center justify-between border-b border-black/10 bg-white/78 px-5 backdrop-blur-2xl sm:px-8 lg:px-10">
+      <header className="studio-header relative z-50 flex items-center justify-between border-b border-black/10 bg-white/78 backdrop-blur-2xl">
         <a
           href="#studio-main"
-          className="flex min-h-11 items-center rounded-xl pr-3 text-[22px] font-bold tracking-[-0.055em] text-[#171715] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
+          className="studio-brand flex min-h-11 items-center rounded-xl pr-3 font-bold text-[#171715] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
           aria-label="monis.studio workspace designer"
         >
           monis<span className="font-medium">.studio</span>
@@ -167,7 +209,7 @@ export function WorkspaceConfigurator() {
         >
           <a
             href="#studio-main"
-            className="relative flex h-full items-center px-1 text-sm font-semibold text-[#1d1d1a] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-[#171715] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
+            className="studio-nav-link is-active relative flex h-full items-center px-1 font-semibold text-[#1d1d1a] after:absolute after:bottom-[19px] after:left-0 after:h-0.5 after:w-full after:bg-[#171715] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
           >
             Design
           </a>
@@ -175,7 +217,7 @@ export function WorkspaceConfigurator() {
             type="button"
             onClick={() => setHowOpen((current) => !current)}
             aria-expanded={howOpen}
-            className="min-h-11 cursor-pointer rounded-xl px-2 text-sm font-medium text-[#5d5d57] transition-colors hover:text-[#1d1d1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
+            className="studio-nav-link min-h-11 cursor-pointer rounded-xl px-2 font-medium text-[#5d5d57] transition-colors hover:text-[#1d1d1a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
           >
             How it works
           </button>
@@ -194,7 +236,7 @@ export function WorkspaceConfigurator() {
           <button
             type="button"
             onClick={handleReset}
-            className="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-black/12 bg-white/50 px-3.5 text-[13px] font-semibold text-[#242421] transition-colors hover:bg-white sm:px-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
+            className="start-over flex cursor-pointer items-center gap-2 rounded-full border border-black/12 bg-white/50 font-medium text-[#242421] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
           >
             <RotateCcw aria-hidden="true" size={15} />
             <span className="hidden sm:inline">Start over</span>
@@ -248,22 +290,24 @@ export function WorkspaceConfigurator() {
 
       <main
         id="studio-main"
-        className="studio-main relative min-h-[calc(100dvh-74px)] overflow-hidden"
+        className="studio-main relative overflow-hidden"
       >
         <section
-          className="workspace-stage relative min-h-[calc(100dvh-74px)] overflow-hidden"
+          className="workspace-stage relative overflow-hidden"
           aria-label="Interactive workspace designer"
         >
           <WorkspacePreview
+            key={transformResetVersion}
             selectedDesk={selectedDesk}
             selectedChair={selectedChair}
             extras={extras}
             selectedItems={selectedItems}
-            pieceCount={pieceCount}
+            activeAssetId={activeAssetId}
+            onActiveAssetChange={setActiveAssetId}
             onExtraQuantityChange={handleExtraQuantityChange}
           />
 
-          <div className="catalog-position absolute bottom-[122px] left-7 top-[76px] z-30 flex items-end xl:left-9">
+          <div className="catalog-position absolute z-30">
             <CatalogPanel
               activeCategory={activeCategory}
               selectedDesk={selectedDesk}
@@ -275,22 +319,22 @@ export function WorkspaceConfigurator() {
             />
           </div>
 
-          <div className="liquid-glass bottom-dock absolute bottom-5 left-7 right-7 z-40 flex min-h-[88px] items-center rounded-[26px] p-2.5 xl:left-9 xl:right-9">
-            <div className="grid min-w-0 flex-1 grid-cols-3 rounded-[20px] border border-white/65 bg-white/32 p-1.5">
+          <div className="liquid-glass bottom-dock absolute z-40 flex items-center">
+            <div className="dock-steps grid min-w-0 grid-cols-3 border border-white/65 bg-white/32">
               {steps.map((step, index) => (
                 <button
                   type="button"
                   key={step.id}
                   onClick={() => setActiveCategory(step.id)}
                   aria-label={`Edit ${categoryLabels[step.id]}: ${step.value}`}
-                  className={`group relative flex min-h-[62px] cursor-pointer items-center gap-2 rounded-2xl px-2.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black ${
+                  className={`dock-step group relative flex cursor-pointer items-center text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black ${
                     activeCategory === step.id
-                      ? "bg-white/72 shadow-[0_8px_20px_rgba(25,25,20,0.07)]"
+                      ? "bg-transparent"
                       : "hover:bg-white/38"
                   }`}
                 >
                   <span
-                    className={`grid size-10 shrink-0 place-items-center rounded-full border text-xs font-bold tabular-nums ${
+                    className={`dock-step-number grid shrink-0 place-items-center rounded-full border font-bold tabular-nums ${
                       activeCategory === step.id
                         ? "border-[#ccd600] bg-[#ecf600]/25 text-[#454a00]"
                         : "border-black/12 bg-white/35 text-[#52524c]"
@@ -298,11 +342,20 @@ export function WorkspaceConfigurator() {
                   >
                     {step.number}
                   </span>
+                  <span className="dock-step-media relative shrink-0">
+                    <Image
+                      src={products[step.productId].image}
+                      alt=""
+                      fill
+                      sizes="48px"
+                      className="object-contain mix-blend-multiply"
+                    />
+                  </span>
                   <span className="min-w-0">
-                    <span className="block text-[13px] font-semibold text-[#242421]">
+                    <span className="dock-step-label block font-semibold text-[#242421]">
                       {step.label}
                     </span>
-                    <span className="mt-0.5 block truncate text-[10px] font-medium text-[#6a6a64]">
+                    <span className="dock-step-value mt-0.5 block truncate font-medium text-[#6a6a64]">
                       {step.value}
                     </span>
                   </span>
@@ -317,25 +370,25 @@ export function WorkspaceConfigurator() {
               ))}
             </div>
 
-            <div className="mx-3 h-14 w-px shrink-0 bg-black/10 xl:mx-6" />
+            <div className="dock-divider shrink-0 bg-black/10" />
 
-            <div className="flex shrink-0 items-center gap-4">
-              <div className="min-w-[118px]">
-                <p className="text-[28px] font-semibold leading-none tabular-nums tracking-[-0.055em] text-[#1e1e1b] xl:text-[32px]">
+            <div className="dock-checkout flex min-w-0 flex-1 items-center">
+              <div className="dock-total">
+                <p>
                   ${total}
-                  <span className="ml-1 text-xs font-medium tracking-normal text-[#60605a]">
+                  <span>
                     /{plan === "monthly" ? "month" : "week"}
                   </span>
                 </p>
-                <p className="mt-1.5 flex items-center gap-1.5 text-[10px] font-semibold text-[#66665f]">
+                <small>
                   <Truck aria-hidden="true" size={12} />
                   Bali setup included
-                </p>
+                </small>
               </div>
               <button
                 type="button"
                 onClick={() => setCheckoutOpen(true)}
-                className="flex min-h-[58px] min-w-[190px] cursor-pointer items-center justify-between gap-4 rounded-[18px] bg-[#e4f000] px-5 text-sm font-bold text-[#171800] shadow-[0_14px_34px_rgba(139,149,0,0.22)] transition-all duration-200 hover:bg-[#f0fb12] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 xl:min-w-[218px]"
+                className="dock-review flex cursor-pointer items-center justify-between gap-4 bg-[#e4f000] font-semibold text-[#171800] shadow-[0_14px_34px_rgba(139,149,0,0.22)] transition-all duration-200 hover:bg-[#f0fb12] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
               >
                 Review setup
                 <ArrowRight aria-hidden="true" size={19} />
@@ -362,7 +415,8 @@ export function WorkspaceConfigurator() {
                   Your setup
                 </h2>
                 <p className="mt-1 text-xs text-[#676761]">
-                  {pieceCount} pieces · ${total}/month
+                  {pieceCount} pieces · ${total}/
+                  {plan === "monthly" ? "month" : "week"}
                 </p>
               </div>
               <span className="grid size-9 place-items-center rounded-full bg-[#e4ef00]">
@@ -388,7 +442,9 @@ export function WorkspaceConfigurator() {
           <p className="text-xl font-semibold tabular-nums tracking-[-0.045em]">
             ${total}
           </p>
-          <p className="text-[10px] font-medium text-[#64645e]">per month</p>
+          <p className="text-[10px] font-medium text-[#64645e]">
+            per {plan === "monthly" ? "month" : "week"}
+          </p>
         </div>
         <button
           type="button"
